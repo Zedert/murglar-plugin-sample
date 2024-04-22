@@ -1,6 +1,8 @@
 package com.badmanners.murglar.lib.sample
 
+import com.badmanners.murglar.lib.core.localization.DefaultMessages.Companion.DEFAULT
 import com.badmanners.murglar.lib.core.localization.MessageException
+import com.badmanners.murglar.lib.core.localization.RussianMessages.Companion.RUSSIAN
 import com.badmanners.murglar.lib.core.log.LoggerMiddleware
 import com.badmanners.murglar.lib.core.model.node.NodeType
 import com.badmanners.murglar.lib.core.model.tag.Lyrics
@@ -22,7 +24,6 @@ import com.badmanners.murglar.lib.core.preference.PreferenceMiddleware
 import com.badmanners.murglar.lib.core.service.BaseMurglar
 import com.badmanners.murglar.lib.core.utils.MediaId
 import com.badmanners.murglar.lib.core.utils.MurglarLibUtils
-import com.badmanners.murglar.lib.core.utils.MurglarLibUtils.RUSSIAN
 import com.badmanners.murglar.lib.core.utils.MurglarLibUtils.loadPaged
 import com.badmanners.murglar.lib.core.utils.MurglarLibUtils.mask
 import com.badmanners.murglar.lib.core.utils.MurglarLibUtils.normalize
@@ -45,7 +46,7 @@ import com.badmanners.murglar.lib.core.utils.string
 import com.badmanners.murglar.lib.sample.decrypt.SampleDecryptor
 import com.badmanners.murglar.lib.sample.localization.SampleDefaultMessages
 import com.badmanners.murglar.lib.sample.localization.SampleMessages
-import com.badmanners.murglar.lib.sample.localization.SampleRuMessages
+import com.badmanners.murglar.lib.sample.localization.SampleRussianMessages
 import com.badmanners.murglar.lib.sample.login.SampleLoginResolver
 import com.badmanners.murglar.lib.sample.model.album.SampleAlbum
 import com.badmanners.murglar.lib.sample.model.artist.SampleArtist
@@ -60,7 +61,6 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import org.threeten.bp.OffsetDateTime
-import java.util.Locale.ENGLISH
 
 
 class SampleMurglar(
@@ -83,8 +83,8 @@ class SampleMurglar(
             "https://play-lh.googleusercontent.com/aFWiT2lTa9CYBpyPjfgfNHd0r5puwKRGj2rHpdPTNrz2N9LXgN_MbLjePd1OTc0E8Rl1"
 
         private val MESSAGES = mapOf(
-            ENGLISH to SampleDefaultMessages,
-            RUSSIAN to SampleRuMessages
+            DEFAULT to SampleDefaultMessages,
+            RUSSIAN to SampleRussianMessages
         )
 
         const val SAMPLE_DOMAIN = "https://sample.com"
@@ -101,7 +101,7 @@ class SampleMurglar(
             if (loginResolver.isLogged)
                 this += CopyPreference(
                     id = "token",
-                    title = messages.copyToken,
+                    title = "${messages.copy} ${messages.token}",
                     getter = loginResolver::oauthToken,
                     displayGetter = { loginResolver.oauthToken.mask(5, 5) }
                 )

@@ -12,6 +12,7 @@ import com.badmanners.murglar.lib.core.model.node.NodeType.ALBUM
 import com.badmanners.murglar.lib.core.model.node.NodeType.ARTIST
 import com.badmanners.murglar.lib.core.model.node.NodeType.AUDIOBOOK
 import com.badmanners.murglar.lib.core.model.node.NodeType.AUDIOBOOK_PART
+import com.badmanners.murglar.lib.core.model.node.NodeType.NODE
 import com.badmanners.murglar.lib.core.model.node.NodeType.PLAYLIST
 import com.badmanners.murglar.lib.core.model.node.NodeType.PODCAST
 import com.badmanners.murglar.lib.core.model.node.NodeType.PODCAST_EPISODE
@@ -50,6 +51,7 @@ class SampleNodeResolver(
             name = messages::myTracks,
             paging = PAGEABLE,
             hasSubdirectories = false,
+            isOwn = true,
             nodeContentSupplier = ::getMyTracks
         ),
         Root(
@@ -57,6 +59,7 @@ class SampleNodeResolver(
             name = messages::myAlbums,
             paging = NON_PAGEABLE,
             hasSubdirectories = true,
+            isOwn = true,
             nodeContentSupplier = ::getMyAlbums
         ),
         Root(
@@ -64,6 +67,7 @@ class SampleNodeResolver(
             name = messages::myArtists,
             paging = NON_PAGEABLE,
             hasSubdirectories = true,
+            isOwn = true,
             nodeContentSupplier = ::getMyArtists
         ),
         Root(
@@ -71,6 +75,7 @@ class SampleNodeResolver(
             name = messages::myPlaylists,
             paging = NON_PAGEABLE,
             hasSubdirectories = true,
+            isOwn = true,
             nodeContentSupplier = ::getMyPlaylists
         ),
         Root(
@@ -78,6 +83,7 @@ class SampleNodeResolver(
             name = messages::myPodcasts,
             paging = NON_PAGEABLE,
             hasSubdirectories = true,
+            isOwn = true,
             nodeContentSupplier = ::getMyPodcasts
         ),
         Root(
@@ -85,6 +91,7 @@ class SampleNodeResolver(
             name = messages::myAudiobooks,
             paging = NON_PAGEABLE,
             hasSubdirectories = true,
+            isOwn = true,
             nodeContentSupplier = ::getMyAudiobooks
         ),
         Root(
@@ -92,6 +99,7 @@ class SampleNodeResolver(
             name = messages::myHistoryTracks,
             paging = ENDLESSLY_PAGEABLE,
             hasSubdirectories = false,
+            isOwn = true,
             nodeContentSupplier = ::getMyHistory
         ),
         Root(
@@ -99,6 +107,7 @@ class SampleNodeResolver(
             name = messages::recommendations,
             paging = NON_PAGEABLE,
             hasSubdirectories = true,
+            isOwn = false,
             nodeContentSupplier = ::getRecommendations
         ),
         Root(
@@ -106,6 +115,7 @@ class SampleNodeResolver(
             name = messages::radio,
             paging = NON_PAGEABLE,
             hasSubdirectories = true,
+            isOwn = false,
             nodeContentSupplier = ::getRadioTypes
         ),
 
@@ -402,17 +412,17 @@ class SampleNodeResolver(
 
         if (track.hasAlbum) {
             val albumPath = unmappedPath().child("album-${track.albumId}")
-            paths += NamedPath(track.albumName!!, albumPath)
+            paths += NamedPath(track.albumName!!, ALBUM, albumPath)
         }
 
         for (i in track.artistNames.indices) {
             val artistPath = unmappedPath().child("artist-${track.artistIds[i]}")
-            paths += NamedPath(track.artistNames[i], artistPath)
+            paths += NamedPath(track.artistNames[i], ARTIST, artistPath)
         }
 
         if (node.nodeType == TRACK) {
             val radioPath = unmappedPath().child("radio_type-track_tag-${track.id}")
-            paths += NamedPath("${messages.radio}: ${track.title}", radioPath)
+            paths += NamedPath("${messages.radio}: ${track.title}", RADIO, radioPath)
         }
 
         return paths
@@ -424,12 +434,12 @@ class SampleNodeResolver(
 
         if (album.hasArtist) {
             val artistPath = unmappedPath().child("artist-${album.artistId}")
-            paths += NamedPath(album.artistName!!, artistPath)
+            paths += NamedPath(album.artistName!!, ARTIST, artistPath)
         }
 
         if (node.nodeType == ALBUM) {
             val radioPath = unmappedPath().child("radio_type-album_tag-${album.id}")
-            paths += NamedPath("${messages.radio}: ${album.title}", radioPath)
+            paths += NamedPath("${messages.radio}: ${album.title}", RADIO, radioPath)
         }
 
         return paths
@@ -438,10 +448,10 @@ class SampleNodeResolver(
     private fun getArtistRelatedPaths(node: Node): List<NamedPath> {
         val artist = node.to<SampleArtist>()
         val radioPath = unmappedPath().child("radio_type-artist_tag-${artist.id}")
-        val radioNamedPath = NamedPath("${messages.radio}: ${artist.name}", radioPath)
+        val radioNamedPath = NamedPath("${messages.radio}: ${artist.name}", RADIO, radioPath)
 
         val similarArtistsPath = unmappedPath().child("artist-${artist.id}/similarArtists")
-        val similarArtistsNamedPath = NamedPath(messages.similarArtists, similarArtistsPath)
+        val similarArtistsNamedPath = NamedPath(messages.similarArtists, NODE, similarArtistsPath)
 
         return listOf(radioNamedPath, similarArtistsNamedPath)
     }
@@ -449,7 +459,7 @@ class SampleNodeResolver(
     private fun getPlaylistRelatedPaths(node: Node): List<NamedPath> {
         val playlist = node.to<SamplePlaylist>()
         val radioPath = unmappedPath().child("radio_type-playlist_tag-${playlist.ownerId}_${playlist.id}")
-        val radioNamedPath = NamedPath("${messages.radio}: ${playlist.title}", radioPath)
+        val radioNamedPath = NamedPath("${messages.radio}: ${playlist.title}", RADIO, radioPath)
 
         return listOf(radioNamedPath)
     }

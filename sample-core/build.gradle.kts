@@ -5,6 +5,6 @@ plugins {
 murglarPlugin {
     id = "sample"
     name = "Sample"
-    version = "1"
+    version = "2"
     murglarClass = "com.badmanners.murglar.lib.sample.SampleMurglar"
 }

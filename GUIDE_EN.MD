@@ -101,8 +101,8 @@ So, requirements for localization are following:
        val twoFAText: String
    } 
    ```
-2. Create implementations for each localization (at least English (`DefaultXxx`) and Russian (`RuXxx`)), inheriting from
-   the interface created in the previous paragraph, and `Messages` implementations in the corresponding language:
+2. Create implementations for each localization (at least English (`DefaultXxx`) and Russian (`RussianXxx`)), inheriting from
+   the interface created in the previous paragraph, and `XxxMessages` implementation in the corresponding language:
    ```kotlin
    object SampleDefaultMessages : DefaultMessages(), SampleMessages {
        override val serviceName = "Sample"
@@ -111,7 +111,7 @@ So, requirements for localization are following:
    }
    ```
    ```kotlin
-   object SampleRuMessages : RuMessages(), SampleMessages {
+   object SampleRussianMessages : RussianMessages(), SampleMessages {
        override val serviceName = "Пример"
        override val loginHelpText = "Текст помощи со входом"
        override val twoFAText = "Код подтверждения из SMS"
@@ -170,8 +170,8 @@ class SampleMurglar(
             "https://play-lh.googleusercontent.com/aFWiT2lTa9CYBpyPjfgfNHd0r5puwKRGj2rHpdPTNrz2N9LXgN_MbLjePd1OTc0E8Rl1"
 
         private val MESSAGES = mapOf(
-            ENGLISH to SampleDefaultMessages,
-            RUSSIAN to SampleRuMessages
+            DEFAULT to SampleDefaultMessages,
+            RUSSIAN to SampleRussianMessages
         )
     }
 }
@@ -197,7 +197,7 @@ override val murglarPreferences: List<Preference>
         if (loginResolver.isLogged)
             this += CopyPreference(
                 id = "token",
-                title = messages.copyToken,
+                title = "${messages.copy} ${messages.token}",
                 getter = loginResolver::oauthToken,
                 displayGetter = { loginResolver.oauthToken.mask(5, 5) }
             )
@@ -461,7 +461,7 @@ If service does not support login - use `com.badmanners.murglar.lib.core.login.N
    override val credentialsLoginVariants = listOf(
        CredentialsLoginVariant(
            id = TOKEN_LOGIN_VARIANT,
-           label = { messages.loginWith(tokens = true) },
+           label = { messages.loginWith(token = true) },
            credentials = listOf(
                Credential(OAUTH_TOKEN_CREDENTIAL, messages::oauthToken)
            )
@@ -476,7 +476,7 @@ If service does not support login - use `com.badmanners.murglar.lib.core.login.N
        ),
        CredentialsLoginVariant(
            id = COOKIE_LOGIN_VARIANT,
-           label = { messages.loginWith(cookies = true) },
+           label = { messages.loginWith(cookie = true) },
            credentials = listOf(
                Credential(COOKIE_CREDENTIAL, { "Cookie" })
            )
@@ -562,6 +562,7 @@ that describing the content of the service - see `com.badmanners.murglar.lib.cor
     name = messages::myTracks,
     paging = PAGEABLE,
     hasSubdirectories = false,
+    isOwn = true,
     nodeContentSupplier = ::getMyTracks
   ),
   Root(
@@ -569,6 +570,7 @@ that describing the content of the service - see `com.badmanners.murglar.lib.cor
     name = messages::recommendations,
     paging = NON_PAGEABLE,
     hasSubdirectories = true,
+    isOwn = false,
     nodeContentSupplier = ::getRecommendations
   )
   ```
@@ -819,17 +821,17 @@ fun getTrackRelatedPaths(node: Node): List<NamedPath> {
 
     if (track.hasAlbum) {
         val albumPath = unmappedPath().child("album-${track.albumId}")
-        paths += NamedPath(track.albumName!!, albumPath)
+        paths += NamedPath(track.albumName!!, ALBUM, albumPath)
     }
 
     for (i in track.artistNames.indices) {
         val artistPath = unmappedPath().child("artist-${track.artistIds[i]}")
-        paths += NamedPath(track.artistNames[i], artistPath)
+        paths += NamedPath(track.artistNames[i], ARTIST, artistPath)
     }
 
     if (node.nodeType == TRACK) {
         val radioPath = unmappedPath().child("radio_type-track_tag-${track.id}")
-        paths += NamedPath("${messages.radio}: ${track.title}", radioPath)
+        paths += NamedPath("${messages.radio}: ${track.title}", RADIO, radioPath)
     }
 
     return paths

@@ -137,7 +137,7 @@ class SampleLoginResolver(
     override val credentialsLoginVariants = listOf(
         CredentialsLoginVariant(
             id = TOKEN_LOGIN_VARIANT,
-            label = { messages.loginWith(tokens = true) },
+            label = { messages.loginWith(token = true) },
             credentials = listOf(
                 Credential(OAUTH_TOKEN_CREDENTIAL, messages::oauthToken)
             )
@@ -152,7 +152,7 @@ class SampleLoginResolver(
         ),
         CredentialsLoginVariant(
             id = COOKIE_LOGIN_VARIANT,
-            label = { messages.loginWith(cookies = true) },
+            label = { messages.loginWith(cookie = true) },
             credentials = listOf(
                 Credential(COOKIE_CREDENTIAL, { "Cookie" })
             )
@@ -192,7 +192,7 @@ class SampleLoginResolver(
         val password = args[PASSWORD_CREDENTIAL]
 
         check(!email.isNullOrEmpty() && email.contains('@') && !password.isNullOrEmpty()) {
-            messages.invalidCredentialsFormat
+            messages.invalidCredentials
         }
 
         val request = NetworkRequest.Builder("https://sample.com/api/signin", "POST")
@@ -216,7 +216,7 @@ class SampleLoginResolver(
         val result = response.result
 
         if (response.statusCode == 403 && result.getStringOpt("error") == "invalid-credentials")
-            error(messages.invalidCredentialsFormat)
+            error(messages.invalidCredentials)
         check(response.isSuccessful) { "Error logging in: $result" }
 
         val jsonResult = result.getJsonObject("result")
@@ -267,7 +267,7 @@ class SampleLoginResolver(
         val result = response.result
 
         if (response.statusCode == 403)
-            error(messages.invalidCredentialsFormat)
+            error(messages.invalidCredentials)
         check(response.isSuccessful) { "Error logging in: $result" }
 
         val token = result.getJsonObject("result").getString("token")
@@ -295,7 +295,7 @@ class SampleLoginResolver(
     fun checkLogged() {
         if (isLogged)
             return
-        notifications.shortNotify(messages.youAreNotLoggedIn)
-        throw MessageException(messages.youAreNotLoggedIn)
+        notifications.shortNotify(messages.youAreNotLoggedInWithServiceName)
+        throw MessageException(messages.youAreNotLoggedInWithServiceName)
     }
 }
